@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transferencia de Calor I - Generación de Calor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuración de MathJax antes de cargar el script -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .slide.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .math-card {
+            background: white;
+            border-left: 4px solid #3b82f6;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Navegación Superior -->
+    <header class="bg-blue-900 text-white p-4 shadow-lg flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <div class="bg-white p-1 rounded">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1e3a8a" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            </div>
+            <span class="font-bold text-lg hidden md:inline">Universidad de América</span>
+        </div>
+        <div class="text-sm font-medium" id="slide-counter">Diapositiva 1 / 10</div>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center p-4 md:p-8">
+        <div id="presentation-container" class="w-full max-w-5xl bg-white rounded-2xl shadow-2xl p-6 md:p-12 min-h-[600px] flex flex-col justify-center border border-gray-100 relative">
+            
+            <!-- Diapositiva 1: Portada -->
+            <div class="slide active text-center">
+                <h2 class="text-blue-600 font-bold uppercase tracking-widest mb-4">Transferencia de Calor I</h2>
+                <h1 class="text-4xl md:text-6xl font-extrabold text-gray-900 mb-8 leading-tight">Conducción Estacionaria con Generación de Calor</h1>
+                <div class="h-1 w-24 bg-blue-500 mx-auto mb-8"></div>
+                <div class="space-y-2 text-gray-600 text-lg">
+                    <p class="font-semibold text-gray-800">Docente: Ph.D. Juan Sandoval Herrera</p>
+                    <p>Facultad de Ingeniería</p>
+                    <p>Año 2026</p>
+                </div>
+            </div>
+
+            <!-- Diapositiva 2: Introducción -->
+            <div class="slide">
+                <h2 class="text-3xl font-bold text-blue-900 mb-6 flex items-center gap-2">
+                    Introducción
+                </h2>
+                <p class="text-gray-700 text-lg mb-6 leading-relaxed">
+                    La generación de calor ocurre cuando alguna forma de energía (eléctrica, química, nuclear) se convierte en energía térmica dentro de un medio sólido. 
+                </p>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-blue-50 p-6 rounded-xl border border-blue-100 shadow-sm">
+                        <h3 class="font-bold text-blue-800 mb-3 underline">Fuentes de Generación</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700">
+                            <li>Resistencia eléctrica en alambres.</li>
+                            <li>Reacciones químicas exotérmicas.</li>
+                            <li>Fisión nuclear en barras de combustible.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-sm">
+                        <h3 class="font-bold text-gray-800 mb-3 underline">Tasa de Generación ($\dot{e}_{gen}$)</h3>
+                        <p class="text-gray-700 mb-2">Se expresa por unidad de volumen ($W/m^3$):</p>
+                        <div class="text-center bg-white border border-gray-100 p-4 rounded-lg">
+                            $$\dot{e}_{gen} = \frac{\dot{E}_{gen}}{V}$$
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diapositiva 3: Origen de la Ecuación Diferencial -->
+            <div class="slide overflow-auto">
+                <h2 class="text-3xl font-bold text-blue-900 mb-4">Origen de la Ecuación Diferencial</h2>
+                <p class="text-gray-700 text-sm mb-4">La ecuación se deriva de la <strong>Ecuación General de Conducción de Calor</strong> (Balance de energía en un volumen de control 3D):</p>
+                
+                <div class="bg-gray-50 p-4 rounded-lg border shadow-inner text-center overflow-x-auto text-[0.9rem] md:text-base mb-6">
+                    $$\underbrace{\frac{\partial}{\partial x}\left(k\frac{\partial T}{\partial x}\right) + \frac{\partial}{\partial y}\left(k\frac{\partial T}{\partial y}\right) + \frac{\partial}{\partial z}\left(k\frac{\partial T}{\partial z}\right)}_{\text{Conducción Neta}} + \underbrace{\dot{e}_{gen}}_{\text{Generación}} = \underbrace{\rho c \frac{\partial T}{\partial t}}_{\text{Almacenamiento}}$$
+                </div>
+
+                <h3 class="font-bold text-blue-800 mb-3 border-b pb-2">Simplificaciones aplicadas:</h3>
+                <ul class="space-y-4 text-gray-700 text-sm mb-6">
+                    <li class="flex items-start gap-3">
+                        <span class="bg-blue-100 text-blue-800 font-bold px-2 py-1 rounded text-xs mt-1">1</span>
+                        <div><strong>Estado Estacionario:</strong> No hay cambio de temperatura con el tiempo. El término de acumulación se hace cero $\left(\frac{\partial T}{\partial t} = 0\right)$.</div>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="bg-blue-100 text-blue-800 font-bold px-2 py-1 rounded text-xs mt-1">2</span>
+                        <div><strong>Unidimensional:</strong> El calor fluye solo en la dirección $x$. Se anulan las derivadas en $y$ y $z$. Las derivadas parciales $\partial$ se vuelven ordinarias $d$.</div>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="bg-blue-100 text-blue-800 font-bold px-2 py-1 rounded text-xs mt-1">3</span>
+                        <div><strong>Conductividad térmica ($k$) constante:</strong> $k$ no depende de la posición, por lo que sale de la derivada $\rightarrow k\frac{d^2T}{dx^2}$.</div>
+                    </li>
+                </ul>
+
+                <div class="text-center mt-4">
+                    <p class="text-gray-500 italic mb-2 text-sm">Dividiendo todo entre la constante $k$, llegamos a la forma final:</p>
+                    <div class="inline-block bg-blue-50 border-2 border-blue-300 p-4 rounded-xl text-2xl font-bold shadow-md">
+                        $$\frac{d^2T}{dx^2} + \frac{\dot{e}_{gen}}{k} = 0$$
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diapositiva 4: Caso 1 - Pared Plana -->
+            <div class="slide">
+                <h2 class="text-3xl font-bold text-blue-900 mb-4">Geometría: Pared Plana</h2>
+                <p class="text-gray-600 mb-4">Considerando una pared de espesor $2L$ con temperaturas superficiales $T_s$ e inmersa en un fluido a $T_\infty$:</p>
+                
+                <div class="flex flex-col md:flex-row gap-6 items-center">
+                    <div class="w-full md:w-1/3">
+                        <img src="https://github.com/Juansanher25/heatgeneration/blob/main/Gemini_Generated_Image_c8od2c8od2c8od2c.png?raw=true" alt="Geometría Pared Plana" class="w-full h-auto rounded-xl shadow-md border border-gray-200 object-cover bg-white">
+                    </div>
+                    <div class="w-full md:w-2/3 space-y-6">
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="bg-white border-2 border-blue-100 rounded-xl p-6 shadow-sm">
+                                <p class="font-bold text-blue-700 mb-2">Temperatura Superficial:</p>
+                                <div class="text-xl">$$T_s = T_\infty + \frac{\dot{e}_{gen} L}{h}$$</div>
+                            </div>
+                            <div class="bg-white border-2 border-red-100 rounded-xl p-6 shadow-sm">
+                                <p class="font-bold text-red-700 mb-2">Temperatura Máxima (Centro):</p>
+                                <div class="text-xl">$$T_0 = T_s + \frac{\dot{e}_{gen} L^2}{2k}$$</div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-6 rounded-xl">
+                            <p class="font-semibold text-gray-800 mb-2">Distribución de Temperatura:</p>
+                            <div class="text-center bg-white p-4 rounded-lg shadow-inner overflow-x-auto">
+                                $$T(x) = \frac{\dot{e}_{gen} L^2}{2k} \left( 1 - \frac{x^2}{L^2} \right) + T_s$$
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diapositiva 5: Geometrías Radiales -->
+            <div class="slide">
+                <h2 class="text-3xl font-bold text-blue-900 mb-6 text-center">Sistemas Radiales</h2>
+                
+                <div class="flex flex-col lg:flex-row gap-8 items-center">
+                    <div class="w-full lg:w-1/3 flex justify-center">
+                        <img src="https://github.com/Juansanher25/heatgeneration/blob/main/Generadial.jpg?raw=true" alt="Sistemas Radiales" class="w-full max-w-xs md:max-w-sm rounded-xl shadow-md border border-gray-200 object-cover bg-white">
+                    </div>
+                    
+                    <div class="w-full lg:w-2/3 grid md:grid-cols-2 gap-6">
+                        <!-- Cilindro -->
+                        <div class="bg-white shadow-lg p-6 rounded-2xl border-t-8 border-blue-500">
+                            <h3 class="font-bold text-xl mb-4 text-center text-blue-800">Cilindro Largo (Radio $r_0$)</h3>
+                            <div class="space-y-6">
+                                <div class="border-b border-blue-50 pb-4">
+                                    <span class="text-xs font-bold text-gray-400 uppercase">Temp. Superficial:</span>
+                                    <div class="text-lg overflow-x-auto">$$T_s = T_\infty + \frac{\dot{e}_{gen} r_0}{2h}$$</div>
+                                </div>
+                                <div class="bg-blue-50 p-4 rounded-xl">
+                                    <span class="text-xs font-bold text-blue-400 uppercase">Temp. Máxima (Eje):</span>
+                                    <div class="text-lg overflow-x-auto">$$T_0 = T_s + \frac{\dot{e}_{gen} r_0^2}{4k}$$</div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Esfera -->
+                        <div class="bg-white shadow-lg p-6 rounded-2xl border-t-8 border-green-500">
+                            <h3 class="font-bold text-xl mb-4 text-center text-green-800">Esfera Sólida (Radio $r_0$)</h3>
+                            <div class="space-y-6">
+                                <div class="border-b border-green-50 pb-4">
+                                    <span class="text-xs font-bold text-gray-400 uppercase">Temp. Superficial:</span>
+                                    <div class="text-lg overflow-x-auto">$$T_s = T_\infty + \frac{\dot{e}_{gen} r_0}{3h}$$</div>
+                                </div>
+                                <div class="bg-green-50 p-4 rounded-xl">
+                                    <span class="text-xs font-bold text-green-400 uppercase">Temp. Máxima (Centro):</span>
+                                    <div class="text-lg overflow-x-auto">$$T_0 = T_s + \frac{\dot{e}_{gen} r_0^2}{6k}$$</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diapositiva 6: Ejemplo 1 -->
+            <div class="slide overflow-auto">
+                <h2 class="text-2xl font-bold text-blue-900 mb-4 uppercase">Ejemplo 1: Calentador de Resistencia</h2>
+                <div class="flex flex-col md:flex-row gap-6 mb-6">
+                    <div class="md:w-2/3 bg-blue-900 text-white p-6 rounded-xl shadow-md flex flex-col justify-center">
+                        <p class="text-sm leading-relaxed mb-2"><strong>Enunciado:</strong> Un calentador de resistencia de alambre de $2 \text{ kW}$, cuya conductividad térmica es $k = 15 \text{ W/m}^\circ\text{C}$, tiene un diámetro de $D = 4 \text{ mm}$ y una longitud de $L = 0.5 \text{ m}$, y se utiliza para hervir agua. Si la temperatura de la superficie exterior de la resistencia de alambre se mide y es $T_s = 105^\circ\text{C}$, determine la temperatura en el centro del alambre.</p>
+                        <p class="text-xs text-blue-200 mt-2"><em>* Este escenario modela un sistema radial simétrico donde todo el calor generado escapa por la superficie exterior hacia el agua.</em></p>
+                    </div>
+                    <div class="md:w-1/3 flex items-center justify-center bg-gray-100 rounded-xl overflow-hidden border border-gray-200 p-2">
+                        <div class="w-full text-center p-2 text-sm text-gray-500 italic flex items-center justify-center bg-white rounded-lg h-full">
+                                                    </div>
+                    </div>
+                </div>
+                <div class="space-y-6">
+                    <div class="flex items-center gap-4">
+                        <div class="h-8 w-8 min-w-[2rem] rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-600">1</div>
+                        <div class="flex-grow">
+                            <p class="text-gray-500 text-xs font-bold uppercase mb-1">Cálculo de la tasa de generación ($\dot{e}_{gen}$):</p>
+                            <div class="bg-white border p-3 rounded-lg shadow-sm overflow-x-auto">
+                                $$\dot{e}_{gen} = \frac{\dot{E}_{gen}}{\pi r_o^2 L} = \frac{2000 \text{ W}}{\pi (0.002 \text{ m})^2 (0.5 \text{ m})} = 0.318 \times 10^9 \text{ W/m}^3$$
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="h-8 w-8 min-w-[2rem] rounded-full bg-green-100 flex items-center justify-center font-bold text-green-600">2</div>
+                        <div class="flex-grow">
+                            <p class="text-gray-500 text-xs font-bold uppercase mb-1">Cálculo de $T_0$ (Eje del cilindro):</p>
+                            <div class="bg-green-50 border border-green-100 p-3 rounded-lg shadow-sm font-semibold overflow-x-auto">
+                                $$T_0 = T_s + \frac{\dot{e}_{gen} r_o^2}{4k} = 105^\circ\text{C} + \frac{(0.318 \times 10^9)(0.002^2)}{4 \times 15} = \mathbf{126^\circ\text{C}}$$
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diapositiva 7: Ejemplo 2 -->
+            <div class="slide overflow-auto">
+                <h2 class="text-2xl font-bold text-blue-900 mb-4 uppercase">Ejemplo 2: Pared Plana Aislada</h2>
+                <div class="flex flex-col md:flex-row gap-6 mb-6">
+                    <div class="md:w-2/3 bg-teal-900 text-white p-6 rounded-xl shadow-md flex flex-col justify-center">
+                        <p class="text-sm leading-relaxed mb-2"><strong>Enunciado:</strong> Una pared plana de espesor $L = 0.1 \text{ m}$ y conductividad térmica $k = 25 \text{ W/m}\cdot^\circ\text{C}$, con una generación uniforme de calor de $\dot{e}_{gen} = 0.3 \text{ MW/m}^3$, se aísla en su lado izquierdo. El otro lado se expone a un fluido a $T_\infty = 92^\circ\text{C}$ con convección $h = 500 \text{ W/m}^2\cdot^\circ\text{C}$. Determine la temperatura máxima en la pared.</p>
+                        <p class="text-xs text-teal-200 mt-2"><em>* Al estar aislada en un lado, la condición de frontera es $\frac{dT}{dx} = 0$. Esto ubica matemáticamente la Temperatura Máxima justo en la cara aislada.</em></p>
+                    </div>
+                    <div class="md:w-1/3 flex items-center justify-center bg-gray-100 rounded-xl overflow-hidden border border-gray-200 p-2">
+                        <div class="w-full text-center p-2 text-sm text-gray-500 italic flex items-center justify-center bg-white rounded-lg h-full">
+                                                    </div>
+                    </div>
+                </div>
+                <div class="space-y-6">
+                    <div class="flex items-center gap-4">
+                        <div class="h-8 w-8 min-w-[2rem] rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-600">1</div>
+                        <div class="flex-grow">
+                            <p class="text-gray-500 text-xs font-bold uppercase mb-1">Cálculo de la Temperatura Superficial ($T_s$):</p>
+                            <div class="bg-white border p-3 rounded-lg shadow-sm overflow-x-auto">
+                                $$T_s = T_\infty + \frac{\dot{e}_{gen} L}{h} = 92^\circ\text{C} + \frac{300000 \text{ W/m}^3 \times 0.1 \text{ m}}{500 \text{ W/m}^2\cdot^\circ\text{C}} = 92 + 60 = 152^\circ\text{C}$$
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="h-8 w-8 min-w-[2rem] rounded-full bg-green-100 flex items-center justify-center font-bold text-green-600">2</div>
+                        <div class="flex-grow">
+                            <p class="text-gray-500 text-xs font-bold uppercase mb-1">Cálculo de la Temp. Máxima ($T_0$ en el lado aislado):</p>
+                            <div class="bg-green-50 border border-green-100 p-3 rounded-lg shadow-sm font-semibold overflow-x-auto">
+                                $$T_0 = T_s + \frac{\dot{e}_{gen} L^2}{2k} = 152^\circ\text{C} + \frac{300000 \times (0.1)^2}{2 \times 25} = 152 + \frac{3000}{50} = \mathbf{212^\circ\text{C}}$$
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diapositiva 8: Aplicaciones Industriales -->
+            <div class="slide">
+                <h2 class="text-3xl font-bold text-blue-900 mb-6">Aplicaciones</h2>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="bg-blue-900 text-white p-6 rounded-2xl shadow-xl">
+                        <div class="text-3xl mb-4">⚛️</div>
+                        <h4 class="font-bold mb-2">Ingeniería Nuclear</h4>
+                        <p class="text-xs opacity-70">Barras de combustible donde la fisión genera calor volumétrico constante.</p>
+                    </div>
+                    <div class="bg-yellow-500 text-white p-6 rounded-2xl shadow-xl">
+                        <div class="text-3xl mb-4">⚡</div>
+                        <h4 class="font-bold mb-2">Sistemas Eléctricos</h4>
+                        <p class="text-xs opacity-70">Cables y resistencias donde el efecto Joule genera calor interno.</p>
+                    </div>
+                    <div class="bg-red-600 text-white p-6 rounded-2xl shadow-xl">
+                        <div class="text-3xl mb-4">🧪</div>
+                        <h4 class="font-bold mb-2">Química</h4>
+                        <p class="text-xs opacity-70">Reactores para reacciones exotérmicas en fase sólida o catalizada.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diapositiva 9: Ejercicios Propuestos -->
+            <div class="slide overflow-auto">
+                <h2 class="text-3xl font-bold text-blue-900 mb-6">Ejercicios Propuestos</h2>
+                <div class="space-y-4">
+                    <div class="bg-gray-50 p-5 rounded-xl border-l-8 border-blue-500 shadow-sm">
+                        <p class="text-gray-800 text-sm leading-relaxed"><strong>1. Pared Aislada:</strong> Una pared plana de $0.1 \text{ m}$ ($k=25 \text{ W/m}^\circ\text{C}$) tiene $\dot{e}_{gen} = 0.3 \text{ MW/m}^3$. Se aísla por la izquierda y la derecha se expone a un fluido a $92^\circ\text{C}$ con $h=500 \text{ W/m}^2\text{C}$. Determine $T_{max}$.</p>
+                    </div>
+                    <div class="bg-gray-50 p-5 rounded-xl border-l-8 border-yellow-500 shadow-sm">
+                        <p class="text-gray-800 text-sm leading-relaxed"><strong>2. Hilo de Cobre:</strong> Un hilo de $2 \text{ mm}$ de diámetro ($k=379 \text{ W/m}^\circ\text{C}$) tiene $h=5000$, $T_\infty=100^\circ\text{C}$. ¿Qué corriente eléctrica hace que $T_{centro} = 150^\circ\text{C}$? ($\rho_{cu} = 1.67 \mu\Omega \cdot \text{cm}$).</p>
+                    </div>
+                    <div class="bg-gray-50 p-5 rounded-xl border-l-8 border-red-500 shadow-sm">
+                        <p class="text-gray-800 text-sm leading-relaxed"><strong>3. Vidrio Térmico:</strong> Un cristal de $4 \text{ mm}$ ($k=1.4$) separa el exterior ($-10^\circ\text{C}, h=65$) del interior ($12^\circ\text{C}, h=10$). Calcule la potencia necesaria para que la cara interna esté a $15^\circ\text{C}$.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diapositiva 10: Bibliografía -->
+            <div class="slide">
+                <h2 class="text-3xl font-bold text-blue-900 mb-8 text-center">Bibliografía</h2>
+                <div class="max-w-2xl mx-auto space-y-6">
+                    <div class="bg-white shadow p-6 rounded-xl border">
+                        <p class="text-gray-700"><strong>Cengel, Y. A., & Ghajar, A. J. (2011).</strong> <em>Transferencia de calor y masa: Fundamentos y aplicaciones.</em> McGraw-Hill Education. 4ta Edición.</p>
+                    </div>
+                    <div class="bg-white shadow p-6 rounded-xl border">
+                        <p class="text-gray-700"><strong>Incropera, F. P.</strong> <em>Fundamentos de transferencia de calor.</em> Pearson Education.</p>
+                    </div>
+                </div>
+                <p class="mt-12 text-center text-gray-400 font-bold uppercase tracking-widest text-xs">Universidad de América - 2026</p>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Controles -->
+    <footer class="bg-white p-6 shadow-inner border-t flex flex-col md:flex-row justify-between items-center gap-4">
+        <button id="prevBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded-lg transition-colors flex items-center gap-2">
+            Anterior
+        </button>
+        <div class="w-full md:w-1/3 bg-gray-200 rounded-full h-2">
+            <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 10%"></div>
+        </div>
+        <button id="nextBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">
+            Siguiente
+        </button>
+    </footer>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const counter = document.getElementById('slide-counter');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const progressBar = document.getElementById('progress-bar');
+        
+        let currentSlide = 0;
+
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                slide.classList.toggle('active', index === currentSlide);
+            });
+            
+            counter.innerText = `Diapositiva ${currentSlide + 1} / ${slides.length}`;
+            const progress = ((currentSlide + 1) / slides.length) * 100;
+            progressBar.style.width = `${progress}%`;
+
+            prevBtn.style.visibility = currentSlide === 0 ? 'hidden' : 'visible';
+            nextBtn.innerText = currentSlide === slides.length - 1 ? 'Finalizar' : 'Siguiente';
+
+            // Forzar a MathJax a procesar la nueva diapositiva visible
+            if (window.MathJax && window.MathJax.typeset) {
+                window.MathJax.typeset();
+            }
+        }
+
+        prevBtn.addEventListener('click', () => {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                updateSlide();
+            } else {
+                currentSlide = 0;
+                updateSlide();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextBtn.click();
+            if (e.key === 'ArrowLeft') prevBtn.click();
+        });
+
+        updateSlide();
+    </script>
+</body>
+</html>
